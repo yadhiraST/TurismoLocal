@@ -70,6 +70,14 @@ export default function App() {
     setCurrentScreen('onboarding');
   };
 
+  const handleGuideGoToProfile = () => {
+    setIsLoggedIn(true);
+    setUserRole('guide');
+    setGuideStatus('verified');
+    setCurrentScreen('guide_dashboard');
+    toast.success('Bienvenido al panel de guía');
+  };
+
   const renderScreen = useMemo(() => {
     if (currentScreen === 'onboarding') {
       return <Onboarding onComplete={() => setCurrentScreen('auth')} />;
@@ -88,7 +96,7 @@ export default function App() {
     }
 
     if (currentScreen === 'guide_verification_pending') {
-      return <GuideVerificationPending onLogout={handleGuideLogout} />;
+      return <GuideVerificationPending onContinue={handleGuideGoToProfile} />;
     }
 
     if (currentScreen === 'detail' && selectedDestination) {
@@ -100,11 +108,8 @@ export default function App() {
       );
     }
 
-    if (userRole === 'guide') {
-      if (guideStatus === 'pending') {
-        return <GuideVerificationPending onLogout={handleGuideLogout} />;
-      }
-      
+    // Guide Flow
+    if (userRole === 'guide' && guideStatus === 'verified') {
       switch (currentScreen) {
         case 'guide_dashboard':
           return <GuideDashboard />;
@@ -117,6 +122,7 @@ export default function App() {
       }
     }
 
+    // Tourist Flow
     switch (currentScreen) {
       case 'home':
         return <HomeScreen onSelectDestination={handleSelectDestination} />;
@@ -139,15 +145,17 @@ export default function App() {
     }
   }, [currentScreen, selectedDestination, favoriteIds, bookings, prevScreen, userRole, isLoggedIn, guideStatus]);
 
-  // Mostrar footer solo en pantallas principales
+  // Mostrar footer para TURISTA y para GUÍA VERIFICADO
   const showNav = isLoggedIn && ![
     'detail',
     'onboarding',
     'auth',
     'guide_register',
-    'guide_verification_pending',
-    'guide_experience_form'
+    'guide_verification_pending'
   ].includes(currentScreen);
+
+  // Determinar si mostrar footer y de qué tipo
+  const shouldShowFooter = showNav && ((userRole === 'tourist') || (userRole === 'guide' && guideStatus === 'verified'));
 
   return (
     <div className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center p-0 md:p-4 font-sans text-gray-900">
@@ -155,7 +163,7 @@ export default function App() {
 
       <div className="w-full max-w-md bg-white h-[100dvh] md:h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] relative flex flex-col overflow-hidden md:rounded-[3rem] md:border-[12px] md:border-black">
         
-        {/* Status bar fija arriba */}
+        {/* Status bar */}
         {isLoggedIn && (
           <div className="h-6 w-full bg-white flex items-center justify-between px-8 pt-2 shrink-0 z-20">
             <span className="text-[10px] font-bold">9:41</span>
@@ -166,16 +174,16 @@ export default function App() {
           </div>
         )}
 
-        {/* SOLO ESTA PARTE HACE SCROLL */}
+        {/* Contenido con scroll */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-white">
-          <div className={showNav ? "pb-2" : ""}>
+          <div className={shouldShowFooter ? "pb-2" : ""}>
             {renderScreen}
           </div>
         </main>
 
-        {/* FOOTER FIJO ABAJO */}
-        {showNav && (
-          <footer className="shrink-0 w-full bg-white z-30">
+        {/* Footer para TURISTA o GUÍA VERIFICADO */}
+        {shouldShowFooter && (
+          <footer className="shrink-0 w-full z-30">
             <BottomNav 
               role={userRole || 'tourist'}
               currentScreen={currentScreen} 
