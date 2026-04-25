@@ -55,7 +55,7 @@ export default function GuideVerificationPending({ onContinue }: GuideVerificati
         onClick={onContinue}
         className="w-full h-12 bg-white text-emerald-900 hover:bg-emerald-50 rounded-2xl font-bold"
       >
-        Ir al perfil del guía
+        Ir al panel del guía
       </Button>
     </div>
   );
