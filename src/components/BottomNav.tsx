@@ -8,6 +8,7 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ currentScreen, onNavigate, role }: BottomNavProps) {
+  // Footer para GUÍA
   if (role === 'guide') {
     return (
       <div className="w-full h-[72px] bg-white border-t border-gray-100 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] flex items-center justify-around px-4">
@@ -16,6 +17,7 @@ export default function BottomNav({ currentScreen, onNavigate, role }: BottomNav
           onClick={() => onNavigate('guide_dashboard')} 
           icon={LayoutDashboard} 
           label="Panel"
+          light={false}
         />
 
         <button 
@@ -30,11 +32,13 @@ export default function BottomNav({ currentScreen, onNavigate, role }: BottomNav
           onClick={() => onNavigate('profile')} 
           icon={User} 
           label="Perfil"
+          light={false}
         />
       </div>
     );
   }
 
+  // Footer para TURISTA
   return (
     <div className="w-full h-[72px] bg-emerald-950 flex items-center justify-around px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.12)]">
       <NavButton 
@@ -44,7 +48,6 @@ export default function BottomNav({ currentScreen, onNavigate, role }: BottomNav
         icon={Home} 
         label="Explora"
       />
-
       <NavButton 
         light
         active={currentScreen === 'map'} 
@@ -52,7 +55,6 @@ export default function BottomNav({ currentScreen, onNavigate, role }: BottomNav
         icon={MapIcon} 
         label="Mapa"
       />
-
       <NavButton 
         light
         active={currentScreen === 'favorites'} 
@@ -60,7 +62,6 @@ export default function BottomNav({ currentScreen, onNavigate, role }: BottomNav
         icon={Heart} 
         label="Favoritos"
       />
-
       <NavButton 
         light
         active={currentScreen === 'profile'} 
