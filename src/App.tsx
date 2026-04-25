@@ -11,7 +11,6 @@ import AuthScreen from './components/AuthScreen.tsx';
 import MapScreen from './components/MapScreen.tsx';
 import GuideDashboard from './components/guide/GuideDashboard.tsx';
 import ExperienceForm from './components/guide/ExperienceForm.tsx';
-import { ScrollArea } from './components/ui/scroll-area.tsx';
 import { Toaster } from './components/ui/sonner.tsx';
 import { toast } from 'sonner';
 import GuideProfile from './components/guide/GuideProfile.tsx';
@@ -54,7 +53,6 @@ export default function App() {
       setCurrentScreen('home');
       toast.success('Bienvenido Viajero');
     } else {
-      // Guía: mostrar registro primero
       setGuideStatus(null);
       setCurrentScreen('guide_register');
     }
@@ -73,7 +71,6 @@ export default function App() {
   };
 
   const renderScreen = useMemo(() => {
-    // Flows before Login
     if (currentScreen === 'onboarding') {
       return <Onboarding onComplete={() => setCurrentScreen('auth')} />;
     }
@@ -81,7 +78,6 @@ export default function App() {
       return <AuthScreen onBack={() => setCurrentScreen('onboarding')} onLogin={handleLogin} />;
     }
 
-    // Registro de Guía (paso 1)
     if (currentScreen === 'guide_register') {
       return (
         <GuideRegisterScreen 
@@ -91,12 +87,10 @@ export default function App() {
       );
     }
 
-    // Pantalla de espera de verificación (paso 2)
     if (currentScreen === 'guide_verification_pending') {
       return <GuideVerificationPending onLogout={handleGuideLogout} />;
     }
 
-    // Common Detail Screen
     if (currentScreen === 'detail' && selectedDestination) {
       return (
         <DetailScreen 
@@ -106,14 +100,11 @@ export default function App() {
       );
     }
 
-    // Guide Flow (solo para guías VERIFICADOS)
     if (userRole === 'guide') {
-      // Si está pendiente, redirigir a pantalla de espera
       if (guideStatus === 'pending') {
         return <GuideVerificationPending onLogout={handleGuideLogout} />;
       }
       
-      // Si está verificado, mostrar dashboard
       switch (currentScreen) {
         case 'guide_dashboard':
           return <GuideDashboard />;
@@ -126,7 +117,6 @@ export default function App() {
       }
     }
 
-    // Tourist Flow
     switch (currentScreen) {
       case 'home':
         return <HomeScreen onSelectDestination={handleSelectDestination} />;
@@ -149,16 +139,25 @@ export default function App() {
     }
   }, [currentScreen, selectedDestination, favoriteIds, bookings, prevScreen, userRole, isLoggedIn, guideStatus]);
 
-  const showNav = isLoggedIn && userRole === 'tourist' && !['detail', 'onboarding', 'auth', 'guide_register', 'guide_verification_pending'].includes(currentScreen);
+  // Mostrar footer solo en pantallas principales
+  const showNav = isLoggedIn && ![
+    'detail',
+    'onboarding',
+    'auth',
+    'guide_register',
+    'guide_verification_pending',
+    'guide_experience_form'
+  ].includes(currentScreen);
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center p-0 md:p-4 font-sans text-gray-900 selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center p-0 md:p-4 font-sans text-gray-900">
       <Toaster position="top-center" richColors />
-      
-      <div className="w-full max-w-md bg-white min-h-screen md:min-h-[85vh] md:h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] relative flex flex-col overflow-hidden md:rounded-[3rem] md:border-[12px] md:border-black ring-1 ring-white/10">
-        {/* Dynamic status bar for mobile feel */}
+
+      <div className="w-full max-w-md bg-white h-[100dvh] md:h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] relative flex flex-col overflow-hidden md:rounded-[3rem] md:border-[12px] md:border-black">
+        
+        {/* Status bar fija arriba */}
         {isLoggedIn && (
-          <div className="h-6 w-full bg-white flex items-center justify-between px-8 pt-2">
+          <div className="h-6 w-full bg-white flex items-center justify-between px-8 pt-2 shrink-0 z-20">
             <span className="text-[10px] font-bold">9:41</span>
             <div className="flex gap-1.5 items-center">
               <div className="w-3.5 h-2 border border-black rounded-xs" />
@@ -167,16 +166,22 @@ export default function App() {
           </div>
         )}
 
-        <ScrollArea className="flex-1 w-full bg-white">
-          {renderScreen}
-        </ScrollArea>
-        
+        {/* SOLO ESTA PARTE HACE SCROLL */}
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-white">
+          <div className={showNav ? "pb-2" : ""}>
+            {renderScreen}
+          </div>
+        </main>
+
+        {/* FOOTER FIJO ABAJO */}
         {showNav && (
-          <BottomNav 
-            role={userRole || 'tourist'}
-            currentScreen={currentScreen} 
-            onNavigate={(screen) => setCurrentScreen(screen)} 
-          />
+          <footer className="shrink-0 w-full bg-white z-30">
+            <BottomNav 
+              role={userRole || 'tourist'}
+              currentScreen={currentScreen} 
+              onNavigate={(screen) => setCurrentScreen(screen)} 
+            />
+          </footer>
         )}
       </div>
     </div>
