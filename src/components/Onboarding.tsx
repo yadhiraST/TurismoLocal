@@ -7,7 +7,6 @@ interface OnboardingProps {
   onComplete: () => void;
 }
 
-// IMÁGENES CON URLS QUE SÍ FUNCIONAN EN MÓVIL (Cloudflare + HTTPS)
 const slides = [
   {
     title: 'Explora lo Inexplorado',
@@ -30,7 +29,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imageErrors, setImageErrors] = useState<boolean[]>([]);
 
-  // Inicializar estado de errores de imágenes
   useEffect(() => {
     setImageErrors(new Array(slides.length).fill(false));
   }, []);
@@ -51,14 +49,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     });
   };
 
-  // Fallback image en caso de error
-  const fallbackImage = 'https://placehold.co/800x1200/1a5d4a/white?text=Turismo+Local+Perú';
-
   return (
-    <div className="h-full flex flex-col bg-white overflow-hidden">
-      <div className="relative h-2/3">
+    <div className="min-h-[100dvh] flex flex-col bg-white overflow-hidden">
+      {/* Sección de imagen con altura fija para móvil */}
+      <div className="relative h-[42dvh] min-h-[280px] shrink-0 overflow-hidden">
         {imageErrors[currentSlide] ? (
-          // Fallback cuando la imagen no carga
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-emerald-700 to-emerald-900 flex items-center justify-center">
             <div className="text-center text-white p-6">
               <div className="text-6xl mb-4">🇵🇪</div>
@@ -79,10 +74,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             onError={() => handleImageError(currentSlide)}
           />
         )}
-        {/* Gradiente mejorado para móvil */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-black/20" />
+        
+        {/* Gradiente más suave */}
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-black/10" />
       </div>
       
+      {/* Contenido inferior */}
       <div className="flex-1 px-6 pt-6 pb-8 flex flex-col items-center text-center justify-between">
         <motion.div
           key={`text-${currentSlide}`}
@@ -99,7 +96,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         </motion.div>
 
         <div className="w-full space-y-6">
-          {/* Indicadores de slide */}
+          {/* Indicadores */}
           <div className="flex justify-center gap-2">
             {slides.map((_, i) => (
               <button
@@ -112,7 +109,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             ))}
           </div>
           
-          {/* Botón principal */}
           <Button 
             onClick={next}
             className="w-full h-12 sm:h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl sm:rounded-2xl text-base sm:text-lg font-semibold group shadow-lg shadow-emerald-600/20"
@@ -123,7 +119,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             )}
           </Button>
 
-          {/* Skip button opcional */}
           {currentSlide < slides.length - 1 && (
             <button
               onClick={onComplete}
